@@ -1,5 +1,37 @@
 # -*- coding: utf-8 -*-
 
+if RUBY_VERSION < '1.9'
+  $KCODE = 'u'
+  class String
+    def force_encoding(enc)
+      self
+    end
+    def ord
+      self.unpack('U')[0]
+    end
+    def length
+      self.chars.count
+    end
+    def [](arg)
+      if arg.kind_of? Fixnum
+        return self.chars.to_a[arg]
+      elsif arg.kind_of? Range
+        return self.chars.to_a[arg].join
+      else
+        return (self)[arg]
+      end
+    end
+  end
+end
+
+def chr(code)
+  if RUBY_VERSION < '1.9'
+    return [code].pack 'U'
+  else
+    return code.chr 'utf-8'
+  end
+end
+
 def main
   sen = ''
   smiley = []
@@ -26,7 +58,7 @@ def main
       smiley << [s, l+1]
     end
     
-    sen += code.to_i.chr 'utf-8'
+    sen += chr code.to_i
   end
 end
 

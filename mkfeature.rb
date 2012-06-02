@@ -1,6 +1,30 @@
 # -*- coding: utf-8 -*-
 require 'MeCab'
 
+if RUBY_VERSION < '1.9'
+  $KCODE = 'u'
+  class String
+    def force_encoding(enc)
+      self
+    end
+    def ord
+      self.unpack('U')[0]
+    end
+    def length
+      self.chars.count
+    end
+    def [](arg)
+      if arg.kind_of? Fixnum
+        return self.chars.to_a[arg]
+      elsif arg.kind_of? Range
+        return self.chars.to_a[arg].join
+      else
+        return (self)[arg]
+      end
+    end
+  end
+end
+
 def begin_node_list(bos, sen, i)
   result = []
   if sen[i] != ' '
@@ -23,7 +47,7 @@ end
 
 def all_morph(bos, sen)
   morph = []
-  for i in 0..(sen.length-1)
+  sen.chars.each_with_index do |c,i|
     nodes = begin_node_list(bos, sen, i)
     for n in nodes
       surf = n.surface.force_encoding('utf-8')
@@ -54,8 +78,7 @@ def main
     bos = t.parseToNode(body)
     morph = all_morph(bos, body)
     
-    for i in 0..(body.length-1)
-      c = body[i]
+    body.chars.each_with_index do |c,i|
       if c != ' '
         cov = morph.select {|e| (e[:pos]..(e[:pos]+e[:len]-1)).include? i} .map {|e| e[:node] }
         beg = morph.select {|e| e[:pos] == i } .map {|e| e[:node] }
