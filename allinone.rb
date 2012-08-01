@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'rubygems'
+gem 'mecab-ruby', '<=0.98'
 require 'MeCab'
 require 'YamCha'
 
